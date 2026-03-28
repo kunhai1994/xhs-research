@@ -47,8 +47,8 @@ def main() -> None:
     ok("Cookies saved successfully")
 
     info("Starting MCP server to verify login...")
-    import start
-    start.main()
+    from start import main as start_main
+    start_main()
 
     print()
     if check_mcp_login():

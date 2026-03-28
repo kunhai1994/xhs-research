@@ -36,7 +36,8 @@ for dir in \
   "${GEMINI_EXTENSION_DIR:-}" \
   "$HOME/.claude/skills/xhs-research" \
   "$HOME/.agents/skills/xhs-research" \
-  "$HOME/.codex/skills/xhs-research"; do
+  "$HOME/.codex/skills/xhs-research" \
+  "$HOME/.gemini/extensions/xhs-research"; do
   [ -n "$dir" ] && [ -f "$dir/scripts/xhs_research.py" ] && SKILL_ROOT="$dir" && break
 done
 echo "SKILL_ROOT=$SKILL_ROOT"
@@ -119,6 +120,21 @@ python3 "${SKILL_ROOT}/scripts/status.py" --json
 - 搜竞品对比：「XX产品 vs YY产品」
 - 搜用户类型：「XX产品 新手」「XX产品 专业用户」
 - 搜使用场景：「XX产品 工作流」「XX产品 怎么用」
+
+输入「咖啡机避雷」→ 关键字：
+1. "咖啡机避雷"
+2. "咖啡机踩坑"
+3. "咖啡机 别买"
+4. "咖啡机 缺点 吐槽"
+5. "咖啡机推荐"（反向搜正面的做对比）
+
+输入「AI绘画新手教程」→ 关键字：
+1. "AI绘画新手教程"
+2. "AI绘画入门攻略"
+3. "AI绘画零基础"
+4. "AI绘画工具推荐"
+5. "AI绘画 怎么学"
+6. "Midjourney 新手教程"（具体工具）
 
 输入「调研XX赛道竞品格局」→ 关键字策略：
 - 搜赛道整体：「XX赛道 推荐」「XX行业 排名」

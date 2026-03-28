@@ -112,7 +112,7 @@ LLM 合成调研报告                  ← 排名/对比/避雷/趋势分析
 
 ### 支持什么系统？
 
-macOS (Intel/Apple Silicon) 和 Linux。Windows 用户通过 WSL 使用。
+macOS (Intel/Apple Silicon)、Linux、Windows (通过 WSL)。
 
 ## 系统要求
 

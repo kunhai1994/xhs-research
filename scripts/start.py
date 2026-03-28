@@ -42,6 +42,7 @@ def main() -> None:
             env=env, stdout=log_file, stderr=log_file,
             start_new_session=True,
         )
+        log_file.close()  # Child inherits FD; parent can safely close
     except Exception as e:
         fail(f"Failed to start MCP server: {e}")
         sys.exit(1)

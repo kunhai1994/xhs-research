@@ -48,7 +48,7 @@ PUBLISH_TIME_MAP = [
 # ---------------------------------------------------------------------------
 QUERY_PATTERNS = {
     "推荐": ["推荐", "最好", "最佳", "top", "排名", "哪个好", "求推荐", "有没有好的"],
-    "测评": ["测评", "评测", "对比", "vs", "versus", "哪个好", "区别"],
+    "测评": ["测评", "评测", "对比", "vs", "versus", "区别"],
     "攻略": ["攻略", "教程", "怎么", "如何", "方法", "步骤", "流程", "指南"],
     "避雷": ["避雷", "踩坑", "不推荐", "别买", "差评", "吐槽", "不要"],
     "产品调研": ["产品调研", "用户体验", "使用场景", "为什么用", "怎么评价"],
@@ -77,7 +77,7 @@ FALLBACK_SUFFIXES = {
     "推荐": ["推荐", "攻略", "排名", "避雷", "种草"],
     "测评": ["测评", "对比", "体验", "优缺点"],
     "攻略": ["攻略", "教程", "新手", "小白"],
-    "避雷": ["避雷", "踩坑", "不推荐", "推荐"],
+    "避雷": ["踩坑", "不推荐", "吐槽", "推荐"],
     "产品调研": ["体验", "吐槽", "优缺点", "使用场景", "推荐"],
     "竞品调研": ["推荐", "对比", "排名", "哪个好", "怎么选"],
     "需求调研": ["痛点", "吐槽", "希望", "建议", "体验"],
@@ -90,7 +90,10 @@ def _extract_core(topic: str) -> str:
     """Remove noise words to extract core subject."""
     words = topic.strip().split()
     core = [w for w in words if w not in NOISE_WORDS]
-    return " ".join(core) if core else topic.strip()
+    if not core:
+        # All words are noise — return empty, caller handles it
+        return ""
+    return " ".join(core)
 
 
 def expand_query_fallback(topic: str, depth: str) -> List[str]:
@@ -100,10 +103,12 @@ def expand_query_fallback(topic: str, depth: str) -> List[str]:
     suffixes = FALLBACK_SUFFIXES.get(qtype, FALLBACK_SUFFIXES["通用"])
 
     queries = [topic.strip()]  # Always include original
-    for suffix in suffixes:
-        variant = f"{core}{suffix}"
-        if variant != queries[0]:
-            queries.append(variant)
+
+    if core:  # Only expand if core extraction succeeded
+        for suffix in suffixes:
+            variant = f"{core}{suffix}"
+            if variant not in queries:
+                queries.append(variant)
 
     limit = 3 if depth == "quick" else 5
     return queries[:limit]
@@ -424,8 +429,9 @@ def score_items(items: List[Dict], query: str, max_days: Optional[int] = None) -
 # ---------------------------------------------------------------------------
 # Fetch post details + comments (策略 3)
 # ---------------------------------------------------------------------------
-def fetch_details(items: List[Dict], top: int = 20) -> List[Dict]:
+def fetch_details(items: List[Dict], top: int = 20, depth: str = "deep") -> List[Dict]:
     """Fetch full content and comments for top N items."""
+    comment_limit = DEPTH_CONFIG.get(depth, DEPTH_CONFIG["deep"])["comment_top"]
     to_fetch = items[:top]
     _log(f"Fetching details for top {len(to_fetch)} posts...")
 
@@ -459,7 +465,7 @@ def fetch_details(items: List[Dict], top: int = 20) -> List[Dict]:
         # Extract top comments
         top_comments = []
         if isinstance(comments_data, list):
-            for c in comments_data[:DEPTH_CONFIG["deep"]["comment_top"]]:
+            for c in comments_data[:comment_limit]:
                 if not isinstance(c, dict):
                     continue
                 cmt = {
@@ -574,8 +580,9 @@ def main():
     parser = argparse.ArgumentParser(description="小红书调研引擎")
     parser.add_argument("topic", nargs="*", help="调研主题（fallback 模式）")
     parser.add_argument("--keywords", type=str, help="逗号分隔的关键字列表（LLM 生成，主路径）")
-    parser.add_argument("--quick", action="store_true", help="快速模式")
-    parser.add_argument("--deep", action="store_true", help="深度模式（默认）")
+    depth_group = parser.add_mutually_exclusive_group()
+    depth_group.add_argument("--quick", action="store_true", help="快速模式")
+    depth_group.add_argument("--deep", action="store_true", help="深度模式（默认）")
     parser.add_argument("--days", type=int, default=None, help="时间范围（天数），默认不限")
     parser.add_argument("--top", type=int, default=None, help="获取详情的帖子数")
     parser.add_argument("--save-dir", type=str, default=None, help="保存报告目录")
@@ -640,7 +647,7 @@ def main():
     items = score_items(items, topic, args.days)
 
     # Step 3: Fetch details for top items
-    enriched = fetch_details(items, top=detail_top)
+    enriched = fetch_details(items, top=detail_top, depth=depth)
 
     # Step 4: Output
     if args.json:

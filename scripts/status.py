@@ -40,7 +40,7 @@ def main() -> None:
 
     if emit_json:
         print(json.dumps(results, indent=2))
-        return
+        sys.exit(0 if results["all_ready"] else 1)
 
     print(f"\n📊 xhs-research status ({os_name}-{arch})\n")
 
