@@ -7,7 +7,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _common import (
-    LAST30DAYS_SCRIPT, COOKIES_PATH, ENV_FILE, MCP_PORT,
+    BIN_DIR, COOKIES_PATH, MCP_PORT,
     detect_platform, find_binary,
     check_mcp_health, check_mcp_login,
     ok, fail, info,
@@ -20,11 +20,9 @@ def main() -> None:
     os_name, arch = detect_platform()
     results = {
         "platform": f"{os_name}-{arch}",
-        "last30days_installed": os.path.isfile(LAST30DAYS_SCRIPT),
         "mcp_binary_installed": find_binary("xiaohongshu-mcp") is not None,
         "login_binary_installed": find_binary("xiaohongshu-login") is not None,
         "cookies_exist": os.path.isfile(COOKIES_PATH),
-        "env_configured": os.path.isfile(ENV_FILE),
         "mcp_running": False,
         "xhs_logged_in": False,
     }
@@ -35,7 +33,6 @@ def main() -> None:
             results["xhs_logged_in"] = check_mcp_login()
 
     results["all_ready"] = all([
-        results["last30days_installed"],
         results["mcp_binary_installed"],
         results["mcp_running"],
         results["xhs_logged_in"],
@@ -53,7 +50,6 @@ def main() -> None:
         else:
             fail(f"{label}{f' — {hint}' if hint else ''}")
 
-    check("last30days engine", results["last30days_installed"], "run setup.py")
     check("xiaohongshu-mcp binary", results["mcp_binary_installed"], "run setup.py")
     check("MCP server (port {})".format(MCP_PORT), results["mcp_running"], "run start.py")
     check("Xiaohongshu login", results["xhs_logged_in"],

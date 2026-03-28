@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""xhs-research setup: download xiaohongshu-mcp + clone last30days engine."""
+"""xhs-research setup: download xiaohongshu-mcp binary."""
 
 import json
 import os
 import stat
-import subprocess
 import sys
 import tarfile
 import tempfile
@@ -12,10 +11,9 @@ import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _common import (
-    XHS_DIR, BIN_DIR, LAST30DAYS_DIR, LAST30DAYS_REPO,
-    MCP_REPO, ENV_FILE, MCP_BASE_URL,
-    detect_platform, get_binary_name, find_binary,
-    ensure_env_key, ok, fail, info, warn,
+    XHS_DIR, BIN_DIR, MCP_REPO,
+    detect_platform, find_binary,
+    ok, fail, info,
 )
 
 GITHUB_API = f"https://api.github.com/repos/{MCP_REPO}/releases/latest"
@@ -82,53 +80,16 @@ def download_mcp_binaries() -> bool:
             os.unlink(tmp_path)
 
 
-def clone_last30days() -> bool:
-    """Shallow clone last30days-skill if not present."""
-    if os.path.isfile(os.path.join(LAST30DAYS_DIR, "scripts", "last30days.py")):
-        ok("last30days engine already installed")
-        return True
-
-    info("Cloning last30days-skill (shallow)...")
-    try:
-        subprocess.run(
-            ["git", "clone", "--depth", "1", LAST30DAYS_REPO, LAST30DAYS_DIR],
-            check=True, capture_output=True, text=True,
-        )
-        ok(f"last30days engine installed to {LAST30DAYS_DIR}")
-        return True
-    except FileNotFoundError:
-        fail("git not found. Please install git first.")
-        return False
-    except subprocess.CalledProcessError as e:
-        fail(f"git clone failed: {e.stderr.strip()}")
-        return False
-
-
-def configure_env() -> None:
-    """Ensure XIAOHONGSHU_API_BASE is in the last30days config."""
-    if ensure_env_key("XIAOHONGSHU_API_BASE", MCP_BASE_URL):
-        ok(f"Added XIAOHONGSHU_API_BASE={MCP_BASE_URL} to {ENV_FILE}")
-    else:
-        ok(f"XIAOHONGSHU_API_BASE already configured in {ENV_FILE}")
-
-    try:
-        os.chmod(ENV_FILE, stat.S_IRUSR | stat.S_IWUSR)
-    except OSError:
-        pass
-
-
 def main() -> None:
     print("\n🔧 xhs-research setup\n")
 
     os_name, arch = detect_platform()
     info(f"Platform: {os_name}-{arch}")
 
-    step1 = download_mcp_binaries()
-    step2 = clone_last30days()
-    configure_env()
+    success = download_mcp_binaries()
 
     print()
-    if step1 and step2:
+    if success:
         ok("Setup complete!")
         print()
         info("Next step: run login to scan QR code:")
