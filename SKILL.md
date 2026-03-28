@@ -367,9 +367,30 @@ python3 "${SKILL_ROOT}/scripts/xhs_research.py" \
 
 ---
 
-## Step 4: 邀请后续
+## Step 4: 保存报告
+
+合成完报告后，用 Write 工具保存到本地：
 
 ```
+路径：~/Documents/XHS-Research/{主题}-{YYYYMMDD}.md
+```
+
+示例：`~/Documents/XHS-Research/深圳产检医院推荐-20260328.md`
+
+- macOS: `~/Documents/XHS-Research/`
+- Linux: `~/Documents/XHS-Research/`（如果 ~/Documents 不存在则用 `~/.local/share/xhs-research/reports/`）
+
+保存后明确告知用户：「报告已保存到 {完整路径}」
+
+> 注意：`--save-dir` 保存的是引擎原始数据（`*-raw.md`），这里保存的是你合成后的完整报告，两者不同。
+
+---
+
+## Step 5: 邀请后续
+
+```
+报告已保存到 {完整路径}。
+
 我已经是「{TOPIC}」的小红书调研专家。可以继续问我：
 - [基于实际调研内容的具体建议1]
 - [具体建议2]
