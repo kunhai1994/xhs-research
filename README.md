@@ -106,6 +106,21 @@ LLM 合成调研报告                  ← 排名/对比/避雷/趋势分析
 
 登录时可能弹出「security 想要使用钥匙串 Chrome Safe Storage」弹窗。**直接点「拒绝」即可**，不影响登录功能。
 
+### 怎么更新 Skill？
+
+直接告诉 Claude Code 或 OpenClaw：
+
+```
+帮我更新 xhs-research skill
+```
+
+或者手动：
+```bash
+cd ~/.claude/skills/xhs-research && git pull
+```
+
+> 注意：如果你之前让 Claude 修改过代码（如自定义搜索参数），git pull 可能会冲突。建议先备份你的修改。
+
 ### Cookie 过期了？
 
 再次使用 `/xhs-research` 时会自动检测，提示你重新扫码。
