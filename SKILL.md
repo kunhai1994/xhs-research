@@ -187,17 +187,27 @@ python3 "${SKILL_ROOT}/scripts/xhs_research.py" \
 3. **标注争议** — 不同用户观点矛盾时，两边都引用
 4. **Self-check** — 写完后回读，删除任何没有真实来源的断言
 
-### 引用格式
+### 引用格式（强制）
 
-正文引用：`per 作者昵称（❤️N）`
+**每条信息、每个观点、每条引用都必须附带原帖链接。没有链接的信息不允许出现在报告中。这是硬性要求，不可省略。**
+
+正文引用：
+```
+per 作者昵称（❤️N）[链接](https://www.xiaohongshu.com/explore/{id})
+```
 
 详细引用：
 ```
 「笔记标题」— 作者昵称（❤️N 💬N ⭐N）
-链接：https://www.xiaohongshu.com/explore/{id}
+https://www.xiaohongshu.com/explore/{id}
 ```
 
-评论区引用：`评论区 用户昵称（N赞）：「评论内容」`
+评论区引用（使用所属帖子的链接）：
+```
+评论区 用户昵称（N赞）：「评论内容」— [来源](https://www.xiaohongshu.com/explore/{id})
+```
+
+**Self-check 时必须检查：报告中是否每条信息都有链接？如果没有，补上或删除该条信息。**
 
 ### 按查询类型输出
 
