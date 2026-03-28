@@ -44,11 +44,13 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/status.py" --json
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/start.py"
    ```
 
-3. **`xhs_logged_in` 为 false** → 告诉用户需要扫码，然后运行：
+3. **`xhs_logged_in` 为 false** → 先告诉用户「正在打开小红书登录页面，请准备好手机扫码」，然后**直接运行**：
    ```bash
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/login.py"
    ```
-   这会弹出 Chrome 窗口显示二维码。**必须等用户用小红书 App 扫码完成。**
+   Chrome 会自动弹出二维码。用户扫码后脚本会自动完成验证和启动服务。等脚本执行完毕即可。
+
+   **macOS 用户注意**：可能会弹出「security 想要使用钥匙串 Chrome Safe Storage」的系统弹窗，点击「拒绝」即可，不影响登录功能。
 
 4. **`all_ready` 为 true** → 进入搜索。
 

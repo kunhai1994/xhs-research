@@ -67,6 +67,10 @@ SKILL.md (prompt)              ← 指导 Claude 做什么
 
 ## 常见问题
 
+### macOS 弹出「钥匙串」密码框？
+
+登录时可能弹出「security 想要使用钥匙串 Chrome Safe Storage」的系统弹窗。**直接点「拒绝」即可**，不影响登录功能。这是 Chrome 自身行为，与小红书登录无关。
+
 ### Cookie 过期了？
 
 再次使用 `/xhs-research` 时会自动检测，提示你重新扫码。
