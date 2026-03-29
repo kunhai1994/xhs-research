@@ -1,218 +1,222 @@
-# 📕 xhs-research — 小红书调研 Skill
+[English](README.md) | [中文](README.zh-CN.md)
 
-开箱即用的小红书调研工具。安装后只需扫码登录，即可用 Claude Code / OpenClaw / Gemini CLI 调研小红书。
+# xhs-research — Xiaohongshu Research Skill
 
-## 快速开始
+A ready-to-use Xiaohongshu (Little Red Book) research tool. Once installed, just scan the QR code to log in, then use Claude Code / OpenClaw / Gemini CLI to research any topic on Xiaohongshu.
 
-复制下面这段话，发给 Claude Code 或 OpenClaw：
+## Quick Start
 
-```
-帮我安装这个小红书调研 Skill：https://github.com/kunhai1994/xhs-research
-```
-
-安装完成后，**重新开一个新的对话/session**，然后输入：
+Copy and paste the following message to Claude Code or OpenClaw:
 
 ```
-/xhs-research "你想调研的话题"
+Install this Xiaohongshu research Skill for me: https://github.com/kunhai1994/xhs-research
 ```
 
-Skill 会自动安装所有依赖。**唯一需要你操作的是用小红书 App 扫码登录。**
-
-## 使用示例
+After installation, **start a new conversation/session**, then type:
 
 ```
-/xhs-research "深圳产检医院推荐"
-/xhs-research "AI绘画教程 工具对比"
-/xhs-research "露营装备 避雷"
-/xhs-research "咖啡机推荐 家用"
+/xhs-research "your research topic"
 ```
 
-## 关于定制化需求修改
-1. **所有代码都在本地，任意根据你的自己需求修改，任意根据你的自己需求修改，任意根据你的自己需求修改**
-2. **你自己不需要改，让 Claude Code 或 OpenClaw 改就行了。**
-## 架构
+The Skill will automatically install all dependencies. **The only thing you need to do is scan the QR code with the Xiaohongshu app to log in.**
+
+## Usage Examples
 
 ```
-用户: /xhs-research "话题"
+/xhs-research "best prenatal hospitals in Shenzhen"
+/xhs-research "AI art tutorials, tool comparison"
+/xhs-research "camping gear, what to avoid"
+/xhs-research "home coffee machine recommendations"
+```
+
+## Customization
+
+1. **All code lives on your machine — feel free to modify it however you like.**
+2. **You don't need to touch the code yourself. Just ask Claude Code or OpenClaw to do it.**
+
+## Architecture
+
+```
+User: /xhs-research "topic"
   │
   ▼
-SKILL.md (prompt)                ← 指导 LLM 做什么
+SKILL.md (prompt)                ← Instructs the LLM on what to do
   │
-  ├─ LLM 生成搜索关键字           ← 智能扩展（同义词/细分/正反面）
-  │
-  ▼
-xhs_research.py (调研引擎)       ← 借鉴 last30days 全平台策略
-  │
-  ├─ 多轮并行搜索                 ← 5-8 关键字 × ~42 条/轮
-  ├─ 三维评分                     ← 相关性 40% + 时间 25% + 互动 35%
-  ├─ 去重                         ← feed_id + Jaccard 标题去重
-  ├─ Top 20 获取详情+评论          ← 正文 + 热评 + 子评论
+  ├─ LLM generates search terms  ← Smart expansion (synonyms / subtopics / pros & cons)
   │
   ▼
-LLM 合成调研报告                  ← 排名/对比/避雷/趋势分析
+xhs_research.py (research engine) ← Inspired by last30days cross-platform strategy
+  │
+  ├─ Multi-round parallel search   ← 5–8 keywords × ~42 results/round
+  ├─ Three-dimensional scoring     ← Relevance 40% + Recency 25% + Engagement 35%
+  ├─ Deduplication                 ← feed_id + Jaccard title similarity
+  ├─ Top 20 detail fetching        ← Full text + top comments + replies
+  │
+  ▼
+LLM synthesizes research report   ← Rankings / comparisons / red flags / trend analysis
 ```
 
-底层依赖：
-- **[xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp)** — 小红书搜索服务（自动安装）
-- 调研引擎借鉴 **[last30days-skill](https://github.com/mvanhorn/last30days-skill)** 的评分/去重/查询扩展策略
+Under the hood:
+- **[xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp)** — Xiaohongshu search service (auto-installed)
+- Research engine inspired by the scoring, deduplication, and query expansion strategies from **[last30days-skill](https://github.com/mvanhorn/last30days-skill)**
 
-## 默认配置
+## Default Settings
 
-| 配置 | 默认值 | 说明 |
-|------|--------|------|
-| 搜索模式 | deep | 最全面 |
-| 时间范围 | 不限 | 搜索所有历史 |
-| 关键字数 | 5-8 个 | LLM 智能生成 |
-| 每轮返回 | ~42 条 | 小红书 API 限制 |
-| 去重后总量 | 80-150 条 | 取决于话题 |
-| 详情获取 | Top 20 | 含正文+评论 |
+| Setting | Default | Description |
+|---------|---------|-------------|
+| Search mode | deep | Most comprehensive |
+| Time range | unlimited | Searches all history |
+| Keywords | 5–8 | LLM-generated |
+| Results per round | ~42 | Xiaohongshu API limit |
+| Total after dedup | 80–150 | Depends on topic |
+| Detail fetching | Top 20 | Includes full text + comments |
 
-可用参数覆盖：`--quick`（快速）、`--days=7`（7天内）、`--top=10`（详情数）
+Override with flags: `--quick` (fast mode), `--days=7` (last 7 days), `--top=10` (number of detailed results)
 
-## Example: 语音转文字工具竞品调研
+## Example: Competitive Analysis of Speech-to-Text Tools
 
-**输入：** `/xhs-research "调研语音转文字工具的竞品，用户需求和痛点"`
+**Input:** `/xhs-research "research speech-to-text tool competitors, user needs and pain points"`
 
-**完整报告输出**（227 条笔记，20 篇详情+评论）：
+**Full report output** (227 notes, 20 detailed posts + comments):
 
 ---
 
-### 一、竞品格局
+### 1. Competitive Landscape
 
-| 排名 | 产品 | 提及频次 | 代表帖互动 | 定位 | 免费额度 |
-|------|------|---------|-----------|------|---------|
-| 1 | **飞书妙记** | 高频 | ❤️3858+❤️1453+❤️933 | 职场会议转录首选 | 原免费，现已限量 |
-| 2 | **通义听悟** | 高频 | 评论区多次推荐 | 免费+全能型，阿里系 | 完全免费 |
-| 3 | **讯飞听见** | 高频 | ❤️1146 | 中文准确率最高 | 实时免费，转写付费 |
-| 4 | **豆包** | 中频 | 评论区多次提及 | 字节系，免费+方便 | 免费 |
-| 5 | **听脑AI** | 中频 | ❤️1146+❤️1453 | AI总结+问答，新锐 | 每天20分钟免费 |
-| 6 | **Whisper系列** | 中频 | ❤️222+❤️343 | 开源离线，隐私友好 | 完全免费 |
+| Rank | Product | Mention Frequency | Top Post Engagement | Positioning | Free Tier |
+|------|---------|------------------|--------------------|----|-----------|
+| 1 | **Feishu Minutes** | High | ❤️3858+❤️1453+❤️933 | Go-to for workplace meeting transcription | Was free, now limited |
+| 2 | **Tongyi Tingwu** | High | Frequently recommended in comments | Free + all-in-one, Alibaba ecosystem | Completely free |
+| 3 | **iFlytek** | High | ❤️1146 | Highest Chinese accuracy | Real-time free, transcription paid |
+| 4 | **Doubao** | Medium | Mentioned in comments | ByteDance ecosystem, free + convenient | Free |
+| 5 | **Tingnao AI** | Medium | ❤️1146+❤️1453 | AI summary + Q&A, rising star | 20 min/day free |
+| 6 | **Whisper** | Medium | ❤️222+❤️343 | Open-source offline, privacy-friendly | Completely free |
 
-#### 飞书妙记
-- per 李linda（❤️1453）[链接](https://www.xiaohongshu.com/explore/68104a7200000000200283aa)：律师群体推荐飞书做录音转文字
-- **限量引发不满**：评论区 young特特特特（2赞）：「现在每个月限制语音转换的条数了😭」— [来源](https://www.xiaohongshu.com/explore/687f9859000000000d0186fe)
+#### Feishu Minutes
+- Per Li Linda (❤️1453) [link](https://www.xiaohongshu.com/explore/68104a7200000000200283aa): recommended by lawyers for audio-to-text
+- **Usage limits cause frustration**: comment by young特特特特 (2 likes): "They now limit the number of voice conversions per month 😭" — [source](https://www.xiaohongshu.com/explore/687f9859000000000d0186fe)
 
-#### 通义听悟
-- per Jennica骄（❤️3858）[链接](https://www.xiaohongshu.com/explore/687f9859000000000d0186fe)：「免费，自动生成全文概要、思维导图，可批量上传50个文件」
-- 评论区 就爱吃甜甜（7赞）：「通义=飞书减去语气词」— [来源](https://www.xiaohongshu.com/explore/66a8cfd3000000000503a76a)
+#### Tongyi Tingwu
+- Per Jennica骄 (❤️3858) [link](https://www.xiaohongshu.com/explore/687f9859000000000d0186fe): "Free, auto-generates summaries & mind maps, supports batch upload of 50 files"
+- Comment by 就爱吃甜甜 (7 likes): "Tongyi = Feishu minus filler words" — [source](https://www.xiaohongshu.com/explore/66a8cfd3000000000503a76a)
 
-#### Whisper 系列
-- per 东海化工丁厂长（❤️222）[链接](https://www.xiaohongshu.com/explore/6807cd7e000000001d039682)：「中英文夹杂完全OK转写95%准确」
-- per 一套组合拳（❤️107）[链接](https://www.xiaohongshu.com/explore/680c9cf9000000001d0052ce)：「涉及敏感信息，绝对不能传到网上」→ 选 Whisper
+#### Whisper
+- Per 东海化工丁厂长 (❤️222) [link](https://www.xiaohongshu.com/explore/6807cd7e000000001d039682): "Handles mixed Chinese-English perfectly, 95% accuracy"
+- Per 一套组合拳 (❤️107) [link](https://www.xiaohongshu.com/explore/680c9cf9000000001d0052ce): "Sensitive information must never be uploaded" → chose Whisper
 
-#### 竞品对比表
+#### Competitive Comparison
 
-| 维度 | 通义听悟 | 飞书妙记 | 讯飞听见 | 听脑AI | Whisper | 豆包 |
-|------|---------|---------|---------|--------|---------|------|
-| **价格** | 免费 | 免费→限量 | 付费为主 | 20min/天 | 完全免费 | 免费 |
-| **中文准确率** | 中等 | 中等 | 最高 | 较高 | 高 | 中等 |
-| **中英混杂** | 一般 | 一般 | 差 | — | 优秀(95%) | — |
-| **AI总结/问答** | 有 | 有 | 无 | 强 | 无 | 有 |
-| **离线/隐私** | 否 | 否 | 否 | 否 | 是 | 否 |
+| Dimension | Tongyi Tingwu | Feishu Minutes | iFlytek | Tingnao AI | Whisper | Doubao |
+|-----------|--------------|----------------|---------|------------|---------|--------|
+| **Price** | Free | Free → limited | Mostly paid | 20 min/day | Completely free | Free |
+| **Chinese accuracy** | Medium | Medium | Highest | High | High | Medium |
+| **Mixed CN-EN** | Fair | Fair | Poor | — | Excellent (95%) | — |
+| **AI summary/Q&A** | Yes | Yes | No | Strong | No | Yes |
+| **Offline/privacy** | No | No | No | No | Yes | No |
 
-### 二、用户画像
+### 2. User Profiles
 
-| 用户类型 | 典型场景 | 代表帖 |
-|---------|---------|--------|
-| **职场打工人** | 会议纪要 | per 打工人效率研究所（❤️7390）[链接](https://www.xiaohongshu.com/explore/68f1ec00000000000703246a) |
-| **律师/咨询师** | 庭审/访谈记录 | per 李linda（❤️1453）[链接](https://www.xiaohongshu.com/explore/68104a7200000000200283aa) |
-| **隐私敏感者** | 敏感音频 | per 一套组合拳（❤️107）[链接](https://www.xiaohongshu.com/explore/680c9cf9000000001d0052ce) |
-| **灵感记录者** | 随时记录想法 | per Mazzystar（❤️343）[链接](https://www.xiaohongshu.com/explore/642d0ebb00000000130344ba) |
+| User Type | Typical Scenario | Representative Post |
+|-----------|-----------------|---------------------|
+| **Office workers** | Meeting minutes | Per 打工人效率研究所 (❤️7390) [link](https://www.xiaohongshu.com/explore/68f1ec00000000000703246a) |
+| **Lawyers / Consultants** | Court / interview transcripts | Per 李linda (❤️1453) [link](https://www.xiaohongshu.com/explore/68104a7200000000200283aa) |
+| **Privacy-conscious users** | Sensitive audio | Per 一套组合拳 (❤️107) [link](https://www.xiaohongshu.com/explore/680c9cf9000000001d0052ce) |
+| **Idea capturers** | Record thoughts on the go | Per Mazzystar (❤️343) [link](https://www.xiaohongshu.com/explore/642d0ebb00000000130344ba) |
 
-### 三、用户痛点矩阵
+### 3. Pain Point Matrix
 
-| 痛点 | 严重度 | 代表性证据 |
-|------|--------|-----------|
-| **准确率不够** | 🔴 高 | per 李linda：「需要自己去校对」[链接](https://www.xiaohongshu.com/explore/68104a7200000000200283aa) |
-| **方言/口音识别差** | 🔴 高 | per 李linda：「方言需要人工校对」[链接](https://www.xiaohongshu.com/explore/68104a7200000000200283aa) |
-| **中英混杂识别差** | 🔴 高 | per 东海化工丁厂长：讯飞、飞书对中英混杂差 [链接](https://www.xiaohongshu.com/explore/6807cd7e000000001d039682) |
-| **免费额度不够** | 🔴 高 | 评论区（642赞）「说明没有免费的」[链接](https://www.xiaohongshu.com/explore/671a46080000000021009404) |
-| **说话人识别缺失** | 🟡 中 | 评论区 momosaysss：「可以分离说话者吗？」[链接](https://www.xiaohongshu.com/explore/6807cd7e000000001d039682) |
-| **隐私/安全顾虑** | 🟡 中 | per 一套组合拳：「绝对不能传到网上」[链接](https://www.xiaohongshu.com/explore/680c9cf9000000001d0052ce) |
+| Pain Point | Severity | Key Evidence |
+|------------|----------|-------------|
+| **Insufficient accuracy** | 🔴 High | Per 李linda: "You still have to proofread it yourself" [link](https://www.xiaohongshu.com/explore/68104a7200000000200283aa) |
+| **Poor dialect/accent recognition** | 🔴 High | Per 李linda: "Dialects require manual correction" [link](https://www.xiaohongshu.com/explore/68104a7200000000200283aa) |
+| **Poor mixed-language recognition** | 🔴 High | Per 东海化工丁厂长: iFlytek and Feishu struggle with mixed CN-EN [link](https://www.xiaohongshu.com/explore/6807cd7e000000001d039682) |
+| **Insufficient free quota** | 🔴 High | Comment (642 likes) "Means there's no free option" [link](https://www.xiaohongshu.com/explore/671a46080000000021009404) |
+| **No speaker identification** | 🟡 Medium | Comment by momosaysss: "Can it separate speakers?" [link](https://www.xiaohongshu.com/explore/6807cd7e000000001d039682) |
+| **Privacy / security concerns** | 🟡 Medium | Per 一套组合拳: "Must never be uploaded online" [link](https://www.xiaohongshu.com/explore/680c9cf9000000001d0052ce) |
 
-### 四、用户需求清单
+### 4. User Needs
 
-1. **准确率是第一需求** — 尤其专业术语、方言、混合语言场景
-2. **免费/高性价比** — 评论区反复问「免费吗」，飞书限量后用户迅速流失 [链接](https://www.xiaohongshu.com/explore/671a46080000000021009404)
-3. **AI总结 & 智能整理** — 从转写升级为「转写+总结+问答」[链接](https://www.xiaohongshu.com/explore/66a8cfd3000000000503a76a)
-4. **中英文混杂支持** — 目前仅 Whisper 表现好 [链接](https://www.xiaohongshu.com/explore/6807cd7e000000001d039682)
-5. **离线/隐私** — 律师、企业用户刚需
+1. **Accuracy is the #1 need** — especially for jargon, dialects, and mixed-language scenarios
+2. **Free or affordable** — comments repeatedly ask "Is it free?"; users fled Feishu after limits were imposed [link](https://www.xiaohongshu.com/explore/671a46080000000021009404)
+3. **AI summaries & smart organization** — users want more than transcription: "transcription + summary + Q&A" [link](https://www.xiaohongshu.com/explore/66a8cfd3000000000503a76a)
+4. **Mixed Chinese-English support** — currently only Whisper handles this well [link](https://www.xiaohongshu.com/explore/6807cd7e000000001d039682)
+5. **Offline / privacy** — a hard requirement for lawyers and enterprise users
 
-### 五、用户决策逻辑
+### 5. User Decision Logic
 
-1. **先试免费的** → 通义/豆包/飞书
-2. **免费不够用** → 付费（讯飞/听脑）或找替代
-3. **对准确率有要求** → 讯飞（纯中文）、Whisper（中英混杂）
-4. **对隐私有要求** → Whisper 系列
-5. **要AI总结** → 听脑AI / 通义
+1. **Try free tools first** → Tongyi / Doubao / Feishu
+2. **Free isn't enough** → Pay (iFlytek / Tingnao) or find alternatives
+3. **Need high accuracy** → iFlytek (pure Chinese), Whisper (mixed-language)
+4. **Need privacy** → Whisper
+5. **Need AI summaries** → Tingnao AI / Tongyi
 
-评论区 舍与得：「华为备忘录转文字，往豆包一丢就整理完了」— [来源](https://www.xiaohongshu.com/explore/66a8cfd3000000000503a76a) → **用户会组合多工具**
+Comment by 舍与得: "Use Huawei Memo to transcribe, then toss it into Doubao to organize" — [source](https://www.xiaohongshu.com/explore/66a8cfd3000000000503a76a) → **Users often combine multiple tools**
 
-### 六、关键趋势
+### 6. Key Trends
 
-1. **从「转写」到「理解」** — 用户要 AI 总结+问答，不只是转录
-2. **免费正在收缩** — 飞书限量，新产品窗口期
-3. **隐私需求上升** — Whisper 离线处理成差异化卖点
-4. **iPhone 原生冲击** — iOS 18+ 自带录音转文字（❤️7390+❤️4920）
+1. **From "transcription" to "comprehension"** — users want AI summaries and Q&A, not just raw text
+2. **Free tiers are shrinking** — Feishu's new limits create an opening for newcomers
+3. **Rising demand for privacy** — Whisper's offline processing is a real differentiator
+4. **Native iOS disruption** — iOS 18+ built-in voice-to-text (❤️7390+❤️4920)
 
-> **数据偏差声明**：本报告数据仅来源于小红书用户个人体验，可能存在推广帖、幸存者偏差等问题。
-
----
-
-📕 小红书: 227 条笔记（8轮搜索）│ 20 篇详情 │ 149,458 赞 │ 97,286 收藏 │ 62,328 评论
-🔥 最高互动: 语音转文字的尴尬瞬间（❤️50,793）
-🗣️ 主要作者: Jennica骄, 打工人效率研究所, 东海化工丁厂长, 就爱吃甜甜, Mazzystar
+> **Data bias disclaimer**: This report is based solely on individual user experiences shared on Xiaohongshu and may contain promotional posts, survivorship bias, and other distortions.
 
 ---
 
-## 文件位置
+📕 Xiaohongshu: 227 notes (8 search rounds) │ 20 detailed posts │ 149,458 likes │ 97,286 saves │ 62,328 comments
+🔥 Highest engagement: Awkward moments with speech-to-text (❤️50,793)
+🗣️ Top contributors: Jennica骄, 打工人效率研究所, 东海化工丁厂长, 就爱吃甜甜, Mazzystar
 
-| 文件 | 路径 |
+---
+
+## File Locations
+
+| File | Path |
 |------|------|
-| MCP 二进制 | `~/.local/share/xhs-research/bin/` |
-| 登录 Cookie | `~/.local/share/xhs-research/cookies.json` |
-| 调研报告 | `~/Documents/XHS-Research/` |
+| MCP binary | `~/.local/share/xhs-research/bin/` |
+| Login cookie | `~/.local/share/xhs-research/cookies.json` |
+| Research reports | `~/Documents/XHS-Research/` |
 
-## 常见问题
+## FAQ
 
-### macOS 弹出「钥匙串」密码框？
+### macOS pops up a "Keychain" password dialog?
 
-登录时可能弹出「security 想要使用钥匙串 Chrome Safe Storage」弹窗。**直接点「拒绝」即可**，不影响登录功能。
+During login, you may see a "security wants to use the Chrome Safe Storage keychain" dialog. **Just click "Deny"** — it won't affect login functionality.
 
-### 怎么更新 Skill？
+### How do I update the Skill?
 
-直接告诉 Claude Code 或 OpenClaw：
+Just tell Claude Code or OpenClaw:
 
 ```
-帮我更新 xhs-research skill
+Update xhs-research skill for me
 ```
 
-或者手动：
+Or manually:
 ```bash
 cd ~/.claude/skills/xhs-research && git pull
 ```
 
-> 注意：如果你之前让 Claude 修改过代码（如自定义搜索参数），git pull 可能会冲突。建议先备份你的修改。
+> Note: If you've previously asked Claude to modify the code (e.g., custom search parameters), `git pull` may cause conflicts. Back up your changes first.
 
-### Cookie 过期了？
+### Cookie expired?
 
-再次使用 `/xhs-research` 时会自动检测，提示你重新扫码。
+The next time you use `/xhs-research`, it will automatically detect the expiration and prompt you to scan the QR code again.
 
-### 支持什么系统？
+### What platforms are supported?
 
-macOS (Intel/Apple Silicon)、Linux、Windows (通过 WSL)。
+macOS (Intel / Apple Silicon), Linux, and Windows (via WSL).
 
-## 系统要求
+## System Requirements
 
 - Python 3.9+
 - Git
-- Google Chrome（登录时需要）
+- Google Chrome (required for login)
 
-## 许可证
+## License
 
 MIT
 
-## 致谢
+## Acknowledgments
 
-- [last30days-skill](https://github.com/mvanhorn/last30days-skill) — 评分/去重/查询扩展策略来源
-- [xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp) — 小红书搜索服务
+- [last30days-skill](https://github.com/mvanhorn/last30days-skill) — scoring, deduplication, and query expansion strategies
+- [xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp) — Xiaohongshu search service
